@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { CNcity, CnLocation, city } from '../api/chungnam';
 
 // import geojson from '../api/TL_SCCO_CTPRVN.json';
 import geojson from '../api/TL_SCCO_SIG.json';
 import ButtonGroup from './ButtonGroup';
+import { CN_DATA_LOAD_REQUEST } from '../reducers/data';
 
 const MapWrapper = styled.div`
   width: 600px;
@@ -25,6 +26,8 @@ const ButtonWrapper = styled.div`
 const InfoWrapper = styled.div``;
 const Map = () => {
   const { kakao } = window;
+  const dispatch = useDispatch();
+
   const CnDivision = {
     asan: [],
     cheonan: [],
@@ -109,6 +112,7 @@ const Map = () => {
     let markers = [];
     const createMarker = (city) => {
       CnDivision[CNcity[city]].map((v) => {
+        console.log(v);
         var geocoder = new kakao.maps.services.Geocoder();
         geocoder.addressSearch(v['소재지'], function (result, status) {
           // 정상적으로 검색이 완료됐으면
@@ -122,6 +126,24 @@ const Map = () => {
             });
             markers.push(marker);
             map.setCenter(coords);
+            var iwContent = `<div style="padding:5px;">
+            업체명: ${v['업체명']} </br>
+            주소: ${v['소재지']} </br>
+            주생산품: ${v['주생산품']}
+            </div>`,
+              iwRemoveable = true;
+
+            // 인포윈도우를 생성합니다
+            var infowindow = new kakao.maps.InfoWindow({
+              content: iwContent,
+              removable: iwRemoveable,
+            });
+
+            // 마커에 클릭이벤트를 등록합니다
+            kakao.maps.event.addListener(marker, 'click', function () {
+              // 마커 위에 인포윈도우를 표시합니다
+              infowindow.open(map, marker);
+            });
           }
         });
       });
@@ -508,7 +530,11 @@ const Map = () => {
   const fetchData = async () => {
     try {
       const request = await axios.get(process.env.REACT_APP_CHUNGNAM_API);
-      dataSet(request);
+      const division = dataSet(request);
+      dispatch({
+        type: CN_DATA_LOAD_REQUEST,
+        data: { CnDivision },
+      });
     } catch (error) {
       console.log(error);
     }

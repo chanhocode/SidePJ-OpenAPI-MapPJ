@@ -48,7 +48,7 @@ const ButtonGroup = ({ code, division }) => {
     <>
       <div id='group'>
         {city.map((v, i) => {
-          console.log(v);
+          // console.log(v);
           return createBtn(v, i, code);
         })}
       </div>

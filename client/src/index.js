@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from './store/configureStore';
 import ReactDOM from 'react-dom/client';
 import styled from 'styled-components';
 import './index.css';
@@ -20,22 +22,23 @@ const App = styled.div`
   margin-left: auto;
   margin-right: auto;
   background-color: #3c6255;
-
 `;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <Background>
-        <App className='App'>
-          <Nav />
-          <Routes>
-            <Route path='/' element={<MainPage />} />
-            <Route path='/join' element={<JoinPage />} />
-          </Routes>
-        </App>
-      </Background>
+      <Provider store={store()}>
+        <Background>
+          <App className='App'>
+            <Nav />
+            <Routes>
+              <Route path='/' element={<MainPage />} />
+              <Route path='/join' element={<JoinPage />} />
+            </Routes>
+          </App>
+        </Background>
+      </Provider>
     </BrowserRouter>
   </React.StrictMode>
 );
