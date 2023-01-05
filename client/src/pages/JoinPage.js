@@ -1,5 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 const Layout = styled.div`
   text-align: center;
@@ -42,26 +44,46 @@ const Wrapper = styled.div`
 `;
 
 const JoinPage = () => {
-  // const onSubmitForm = useCallback(() => {}, []);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [gender, setGender] = useState('남성');
+  const [age, setAge] = useState('10');
+
+  const onChangeAge = useCallback((e) => {
+    setAge(e.target.value);
+    console.log('e.target.value: ', e.target.value);
+    console.log(age);
+  });
+  const onChangeGender = useCallback((e) => {
+    setGender(e.target.value);
+    console.log('e.target.value: ', e.target.value);
+    console.log(gender);
+  });
+
+  const onSubmitForm = useCallback(() => {
+    console.log('submit data: ', gender, age);
+    navigate('/');
+  }, [gender, age]);
   return (
     <Layout>
       <Wrapper>
         <h1>Hello, Enter your information and Proceed.</h1>
-        <form>
-          <select>
+        <form onSubmit={onSubmitForm}>
+          <select type='gender' onChange={onChangeGender}>
             <option value='male'>남성</option>
             <option value='female'>여성</option>
           </select>
-          <select>
+          <select type='age' onChange={onChangeAge}>
             <option value='10'>10대</option>
-            <option value='10'>20대</option>
-            <option value='10'>30대</option>
-            <option value='10'>40대</option>
-            <option value='10'>50대</option>
-            <option value='10'>60대</option>
-            <option value='10'>70대</option>
+            <option value='20'>20대</option>
+            <option value='30'>30대</option>
+            <option value='40'>40대</option>
+            <option value='50'>50대</option>
+            <option value='60'>60대</option>
+            <option value='70'>70대</option>
           </select>
-          <button>Go!</button>
+          <button type='submit'>Go!</button>
         </form>
       </Wrapper>
     </Layout>
