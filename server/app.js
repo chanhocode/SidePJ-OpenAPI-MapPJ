@@ -1,11 +1,12 @@
 const express = require('express');
+const cors = require('cors');
+
 const path = require('path');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 
 const { sequelize } = require('./models');
 const datasRouter = require('./routes/data');
-// const db = require('./models');
 
 const app = express();
 dotenv.config();
@@ -18,6 +19,13 @@ sequelize
   .catch((err) => {
     console.log(err);
   });
+
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+  })
+);
 
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));

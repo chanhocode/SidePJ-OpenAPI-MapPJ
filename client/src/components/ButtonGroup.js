@@ -38,9 +38,9 @@ const ButtonGroup = ({ code, division }) => {
   // ];
   const createBtn = (city, i) => {
     return (
-      <>
-        <button className={`${code}_${i}`}>{city}</button>
-      </>
+      <button key={i} className={`${code}_${i}`}>
+        {city}
+      </button>
     );
   };
 

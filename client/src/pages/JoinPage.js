@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { JOIN_REQUEST } from '../reducers/data';
 
 const Layout = styled.div`
   text-align: center;
@@ -61,10 +62,21 @@ const JoinPage = () => {
     console.log(gender);
   });
 
-  const onSubmitForm = useCallback(() => {
-    console.log('submit data: ', gender, age);
-    navigate('/');
-  }, [gender, age]);
+  const onSubmitForm = useCallback(
+    (e) => {
+      console.log('submit data: ', gender, age);
+      e.preventDefault();
+      dispatch({
+        type: JOIN_REQUEST,
+        data: {
+          age,
+          gender,
+        },
+      });
+      // navigate('/');
+    },
+    [gender, age]
+  );
   return (
     <Layout>
       <Wrapper>

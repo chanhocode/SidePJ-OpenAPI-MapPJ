@@ -10,7 +10,7 @@ router.post('/join', async (req, res, next) => {
       age: req.body.age,
       gender: req.body.gender,
     });
-    res.status(200).send('ok');
+    res.status(200).json(visit);
   } catch (error) {
     console.log(error);
     next(error);
