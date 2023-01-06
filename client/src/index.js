@@ -22,6 +22,10 @@ const App = styled.div`
   margin-left: auto;
   margin-right: auto;
   background-color: #3c6255;
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 `;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

@@ -41,6 +41,7 @@ const Wrapper = styled.div`
     border-bottom: 1px #000 solid;
     width: 70px;
     height: 30px;
+    cursor: pointer;
   }
 `;
 

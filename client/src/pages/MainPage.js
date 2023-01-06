@@ -8,9 +8,9 @@ const MainPage = () => {
   const navigate = useNavigate();
   const { me } = useSelector((state) => state.data);
   useEffect(() => {
-    // if (!me) {
-    //   navigate('/');
-    // }
+    if (!me) {
+      navigate('/');
+    }
     console.log('MainPage: ', me);
   }, []);
   return (

@@ -12,6 +12,9 @@ import { CN_DATA_LOAD_REQUEST, SAVE_DATA_REQUEST } from '../reducers/data';
 const MapWrapper = styled.div`
   width: 600px;
   display: flex;
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 `;
 const ButtonWrapper = styled.div`
   #group {
@@ -21,6 +24,8 @@ const ButtonWrapper = styled.div`
   button {
     width: 100px;
     height: 31px;
+    @media (max-width: 600px) {
+    }
   }
 `;
 
