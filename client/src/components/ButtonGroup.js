@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 
 const ButtonGroup = ({ code, division }) => {
   const city = [
@@ -19,23 +18,7 @@ const ButtonGroup = ({ code, division }) => {
     '보령시',
     '서천군',
   ];
-  // const CnEng = [
-  //   'asan',
-  //   'cheonan',
-  //   'yesan',
-  //   'gongju',
-  //   'gyeryong',
-  //   'geumsan',
-  //   'nonsan',
-  //   'buyeo',
-  //   'dangjin',
-  //   'seosan',
-  //   'taean',
-  //   'hongseong',
-  //   'cheongyang',
-  //   'boryeong',
-  //   'seocheon',
-  // ];
+
   const createBtn = (city, i) => {
     return (
       <button key={i} className={`${code}_${i}`}>
@@ -48,7 +31,6 @@ const ButtonGroup = ({ code, division }) => {
     <>
       <div id='group'>
         {city.map((v, i) => {
-          // console.log(v);
           return createBtn(v, i, code);
         })}
       </div>

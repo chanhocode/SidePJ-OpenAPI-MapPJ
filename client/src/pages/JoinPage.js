@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { JOIN_REQUEST } from '../reducers/data';
 
 const Layout = styled.div`
@@ -45,10 +45,11 @@ const Wrapper = styled.div`
 `;
 
 const JoinPage = () => {
+  const { me } = useSelector((state) => state.data);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [gender, setGender] = useState('남성');
+  const [gender, setGender] = useState('male');
   const [age, setAge] = useState('10');
 
   const onChangeAge = useCallback((e) => {
@@ -61,6 +62,11 @@ const JoinPage = () => {
     console.log('e.target.value: ', e.target.value);
     console.log(gender);
   });
+  useEffect(() => {
+    if (me) {
+      navigate('/main');
+    }
+  }, [me]);
 
   const onSubmitForm = useCallback(
     (e) => {
@@ -73,7 +79,6 @@ const JoinPage = () => {
           gender,
         },
       });
-      // navigate('/');
     },
     [gender, age]
   );

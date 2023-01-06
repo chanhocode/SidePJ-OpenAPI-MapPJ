@@ -33,8 +33,8 @@ root.render(
           <App className='App'>
             <Nav />
             <Routes>
-              <Route path='/' element={<MainPage />} />
-              <Route path='/join' element={<JoinPage />} />
+              <Route path='/' element={<JoinPage />} />
+              <Route path='/main' element={<MainPage />} />
             </Routes>
           </App>
         </Background>

@@ -7,7 +7,7 @@ import { CNcity, CnLocation, city } from '../api/chungnam';
 // import geojson from '../api/TL_SCCO_CTPRVN.json';
 import geojson from '../api/TL_SCCO_SIG.json';
 import ButtonGroup from './ButtonGroup';
-import { CN_DATA_LOAD_REQUEST } from '../reducers/data';
+import { CN_DATA_LOAD_REQUEST, SAVE_DATA_REQUEST } from '../reducers/data';
 
 const MapWrapper = styled.div`
   width: 600px;
@@ -23,6 +23,8 @@ const ButtonWrapper = styled.div`
     height: 31px;
   }
 `;
+
+const iwContent = styled.div``;
 const InfoWrapper = styled.div``;
 const Map = () => {
   const { kakao } = window;
@@ -110,6 +112,7 @@ const Map = () => {
       lenSw = true;
     };
     let markers = [];
+    let info = [];
     const createMarker = (city) => {
       CnDivision[CNcity[city]].map((v) => {
         console.log(v);
@@ -119,6 +122,25 @@ const Map = () => {
           if (status === kakao.maps.services.Status.OK) {
             var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
 
+            const onSaveLike = () => {
+              if (info) {
+                console.log('info: ', info);
+                for (let i = 0; i < info.length; i++) {
+                  info[i].close();
+                }
+              }
+              dispatch({
+                type: SAVE_DATA_REQUEST,
+                data: {
+                  do: '충청남도',
+                  si: v['소재지'].slice(0, 3),
+                  name: v['업체명'],
+                  address: v['소재지'],
+                  product: v['주생산품'],
+                },
+              });
+            };
+
             // 결과값으로 받은 위치를 마커로 표시합니다
             var marker = new kakao.maps.Marker({
               map: map,
@@ -126,10 +148,14 @@ const Map = () => {
             });
             markers.push(marker);
             map.setCenter(coords);
-            var iwContent = `<div style="padding:5px;">
-            업체명: ${v['업체명']} </br>
-            주소: ${v['소재지']} </br>
-            주생산품: ${v['주생산품']}
+            var iwContent = `
+            <div style="width:100%;padding: 5px;">
+              <div style="display: flex;">
+                <div>업체명: ${v['업체명']}</div>
+                <button id="btnClick">관심</button>
+              </div>
+              주소: ${v['소재지']} </br>
+              주생산품: ${v['주생산품']}
             </div>`,
               iwRemoveable = true;
 
@@ -138,11 +164,21 @@ const Map = () => {
               content: iwContent,
               removable: iwRemoveable,
             });
+            info.push(infowindow);
 
             // 마커에 클릭이벤트를 등록합니다
             kakao.maps.event.addListener(marker, 'click', function () {
+              if (info) {
+                console.log('info: ', info);
+                for (let i = 0; i < info.length; i++) {
+                  info[i].close();
+                }
+              }
               // 마커 위에 인포윈도우를 표시합니다
               infowindow.open(map, marker);
+              const infoBtn = document.querySelector('#btnClick');
+              // console.log(infoBtn);
+              infoBtn.onclick = onSaveLike;
             });
           }
         });
@@ -195,13 +231,6 @@ const Map = () => {
 
         draggable = false;
         map.setDraggable(draggable);
-
-        // customOverlay.setContent(
-        //   '<div class="area">' + CnDivision[CNcity[name]].length + '</div>'
-        // );
-
-        // customOverlay.setPosition(mouseEvent.latLng);
-        // customOverlay.setMap(map);
       });
 
       // 다각형에 mousemove 이벤트를 등록하고 이벤트가 발생하면 커스텀 오버레이의 위치를 변경합니다
@@ -250,12 +279,26 @@ const Map = () => {
       map.setCenter(moveLatLon);
     }
     const $mapRerender = document.querySelector('#mapRerender');
-    $mapRerender.addEventListener('click', function () {
+    $mapRerender.addEventListener('mousedown', function () {
       setCenter();
       if (lenSw) {
         data.forEach((val) => {
           coordinates = val.geometry.coordinates;
           name = val.properties.SIG_KOR_NM;
+          displayArea(coordinates, name);
+          displayArea(coordinates, name);
+        });
+        deleteMarker();
+        lenSw = false;
+      }
+    });
+    $mapRerender.addEventListener('mouseup', function () {
+      setCenter();
+      if (lenSw) {
+        data.forEach((val) => {
+          coordinates = val.geometry.coordinates;
+          name = val.properties.SIG_KOR_NM;
+          displayArea(coordinates, name);
           displayArea(coordinates, name);
         });
         deleteMarker();
