@@ -32,6 +32,7 @@ const ButtonWrapper = styled.div`
 const iwContent = styled.div``;
 const InfoWrapper = styled.div``;
 const Map = () => {
+  const { me } = useSelector((state) => state.data);
   const { kakao } = window;
   const dispatch = useDispatch();
 
@@ -85,7 +86,7 @@ const Map = () => {
     const map = new kakao.maps.Map(container, options);
 
     const customOverlay = new kakao.maps.CustomOverlay({});
-    const infowindow = new kakao.maps.InfoWindow({ removable: true });
+    // const infowindow = new kakao.maps.InfoWindow({ removable: true });
     let draggable = true;
 
     const centroid = (points) => {
@@ -102,8 +103,7 @@ const Map = () => {
         y += (p1.y + p2.y) * f;
         area += f * 3;
       }
-      console.log(x / area);
-      console.log(y / area);
+
       let xarea = x / area;
       let yarea = y / area;
       return new kakao.maps.LatLng(xarea, yarea);
@@ -134,9 +134,11 @@ const Map = () => {
                   info[i].close();
                 }
               }
+              console.log('me: ', me);
               dispatch({
                 type: SAVE_DATA_REQUEST,
                 data: {
+                  meId: me.id,
                   do: '충청남도',
                   si: v['소재지'].slice(0, 3),
                   name: v['업체명'],
