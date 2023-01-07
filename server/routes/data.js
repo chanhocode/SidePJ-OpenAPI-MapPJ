@@ -29,6 +29,7 @@ router.post('/savedata', async (req, res, next) => {
       product: req.body.product,
     });
     console.log('server: ', check);
+    await check.addLiked(req.body.meId);
     res.status(200).json(check);
   } catch (error) {
     console.log(error);

@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { CnEng } from '../api/chungnam';
 
+// styled
 const CompanyWrapper = styled.div`
   background-color: #d7e9b9;
   width: 90%;
@@ -23,38 +25,27 @@ const Wrapper = styled.div`
     border-radius: 10px;
   }
 `;
+// End styled
 
+/**
+ * 지역별 기업의 수를 표시 해주는 컴포넌트
+ */
 const CompanyCount = () => {
   const { cnData } = useSelector((state) => state.data);
+
   useEffect(() => {
-    const CnEng = [
-      'asan',
-      'cheonan',
-      'yesan',
-      'gongju',
-      'gyeryong',
-      'geumsan',
-      'nonsan',
-      'buyeo',
-      'dangjin',
-      'seosan',
-      'taean',
-      'hongseong',
-      'cheongyang',
-      'boryeong',
-      'seocheon',
-    ];
     if (cnData !== null) {
-      CnEng.map((v, i) => {
+      CnEng.map((v) => {
         const $countList = document.querySelector('#countList');
         const node = document.createElement('div');
         const text = document.createTextNode(
-          `${CnEng[i]}: ${cnData['CnDivision'][CnEng[i]].length}`
+          `${v}: ${cnData['CnDivision'][v].length}`
         );
-
         node.appendChild(text);
         node.className = 'sym';
         $countList.appendChild(node);
+
+        return 0;
       });
     }
   }, [cnData]);

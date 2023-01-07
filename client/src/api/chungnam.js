@@ -32,6 +32,23 @@ export const city = [
   '보령시',
   '서천군',
 ];
+export const CnEng = [
+  'asan',
+  'cheonan',
+  'yesan',
+  'gongju',
+  'gyeryong',
+  'geumsan',
+  'nonsan',
+  'buyeo',
+  'dangjin',
+  'seosan',
+  'taean',
+  'hongseong',
+  'cheongyang',
+  'boryeong',
+  'seocheon',
+];
 export const CnLocation = {
   아산시: [36.807980592249244, 126.97807816423754],
   천안시: [36.891335879739145, 127.15991121087959],

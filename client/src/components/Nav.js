@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import logo from '../utils/img/logo.png';
+
+// styled
 const NavBar = styled.div`
   width: 100%;
   height: 150px;
@@ -29,6 +31,8 @@ const Logo = styled.div`
 const Info = styled.div`
   color: #fff;
 `;
+// End styled
+
 const Nav = () => {
   return (
     <NavBar>

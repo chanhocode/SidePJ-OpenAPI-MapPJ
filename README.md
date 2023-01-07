@@ -114,7 +114,7 @@
 ```
 1. 마커를 클릭시 infowindow 를 생성하여 기업의 기본 정보를 표시
 2. 다른 마커를 클릭시 기존 infoWindow를 제거후 선택 마커의 infoWindow를 표시
-3. 특정 회사 클릭 후 [관심] 버튼 클릭시 DataBase에 해당 기업 정보 저장
+3. 특정 회사 클릭 후 [관심] 버튼 클릭시 DataBase에 해당 기업 정보 저장 및 유저와의 연관관계 생성
 ```
 
 <br>
@@ -122,6 +122,8 @@
 - mySQL 저장 데이터
 
 <br>
+
+<img src='./readme/db2.png'>
 
 <img src='./readme/db2.png'>
 

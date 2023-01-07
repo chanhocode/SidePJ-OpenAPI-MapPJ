@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { CNcity, CnLocation, city } from '../api/chungnam';
-
-// import geojson from '../api/TL_SCCO_CTPRVN.json';
+import { CNcity } from '../api/chungnam';
 import geojson from '../api/TL_SCCO_SIG.json';
 import ButtonGroup from './ButtonGroup';
 import { CN_DATA_LOAD_REQUEST, SAVE_DATA_REQUEST } from '../reducers/data';
 
+// styled
 const MapWrapper = styled.div`
   width: 600px;
   display: flex;
@@ -28,14 +27,18 @@ const ButtonWrapper = styled.div`
     }
   }
 `;
-
-const iwContent = styled.div``;
 const InfoWrapper = styled.div``;
+// End styled
+
 const Map = () => {
-  const { me } = useSelector((state) => state.data);
   const { kakao } = window;
+  const { me } = useSelector((state) => state.data);
   const dispatch = useDispatch();
 
+  // 데이터를 불러오는 작업이 중복 되지 않게 하는 flag변수
+  let flag = true;
+
+  // 도시별 분류를 위한 저장소
   const CnDivision = {
     asan: [],
     cheonan: [],
@@ -53,31 +56,59 @@ const Map = () => {
     boryeong: [],
     seocheon: [],
   };
+
+  /**
+   * 주소를 '시' 별로 구분하여 분류한다.
+   * @param {*} state
+   */
   const dataSet = (state) => {
-    state.data.data.map((i) => {
-      const city = CNcity[i['소재지'].slice(0, 3)];
-      CnDivision[city].push(i);
+    state.data.data.map((v) => {
+      const city = CNcity[v['소재지'].slice(0, 3)];
+      CnDivision[city].push(v);
+      return 0;
     });
   };
 
-  let flag = true;
+  /**
+   * 공공데이터포털의 openAPI에서 필요 데이터를 불러온 뒤, 도시별로 분류 하여 store에 저장한다.
+   */
+  const fetchData = async () => {
+    try {
+      const request = await axios.get(process.env.REACT_APP_CHUNGNAM_API);
+      dataSet(request);
+      dispatch({
+        type: CN_DATA_LOAD_REQUEST,
+        data: { CnDivision },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  // 데이터 분류
   useEffect(() => {
     if (flag) {
       fetchData();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       flag = false;
-      const $info = document.querySelector('#info');
     }
-  }, []);
+  }, [flag]);
 
+  // 카카오맵 셋팅
   useEffect(() => {
     let data = geojson.features; // 해당 구역 이름, 좌표 등
     let coordinates = []; // 좌표 저장
     let name = ''; // 행정구 이름
 
     let polygons = [];
+
+    /**
+     * 초기값 false (화면 버튼을 눌러도 동작하지 않게 설정)
+     * 폴리곤 클릭시 true로 변경하여 화면 버튼을 활성화
+     * 화면 버튼 클릭시 false로 스위치
+     */
     let lenSw = false;
-    //
+
     const container = document.getElementById('kakaoMap');
     const options = {
       center: new kakao.maps.LatLng(36.545300108494835, 126.88998078116987),
@@ -86,9 +117,15 @@ const Map = () => {
     const map = new kakao.maps.Map(container, options);
 
     const customOverlay = new kakao.maps.CustomOverlay({});
-    // const infowindow = new kakao.maps.InfoWindow({ removable: true });
+
+    // 폴리곤 내에서 드래그를 막고자 하는 변수
     let draggable = true;
 
+    /**
+     * 클릭한 폴리곤의 중심값을 구하는 함수
+     * @param {*} points
+     * @returns
+     */
     const centroid = (points) => {
       let i, j, len, p1, p2, f, area, x, y;
 
@@ -109,6 +146,10 @@ const Map = () => {
       return new kakao.maps.LatLng(xarea, yarea);
     };
 
+    /**
+     * 폴리곤을 클릭시 생성된 폴리곤을 모두 지우는 함수.
+     * @param {*} polygons
+     */
     const deletePolygon = (polygons) => {
       for (let i = 0; i < polygons.length; i++) {
         polygons[i].setMap(null);
@@ -116,20 +157,28 @@ const Map = () => {
       polygons = [];
       lenSw = true;
     };
-    let markers = [];
-    let info = [];
+
+    let markers = []; // 생선된 마커를 담는다.
+    let info = []; // 생성된 infoWindow를 담는다.
+
+    /**
+     * 클릭한 폴리곤에 해당하는 지역의 기업을 마커로 표시한다.
+     * @param {*} city
+     */
     const createMarker = (city) => {
       CnDivision[CNcity[city]].map((v) => {
-        console.log(v);
         var geocoder = new kakao.maps.services.Geocoder();
         geocoder.addressSearch(v['소재지'], function (result, status) {
           // 정상적으로 검색이 완료됐으면
           if (status === kakao.maps.services.Status.OK) {
             var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
 
+            /**
+             * - 클릭한 기업을 DB에 저장 및 인적사항 연계
+             * - 열려있는 infoWindow를 close한다.
+             */
             const onSaveLike = () => {
               if (info) {
-                console.log('info: ', info);
                 for (let i = 0; i < info.length; i++) {
                   info[i].close();
                 }
@@ -189,8 +238,13 @@ const Map = () => {
             });
           }
         });
+        return 0;
       });
-    };
+    }; // end
+
+    /**
+     * 생성되어 있는 마커를 모두 제거한다.
+     */
     const deleteMarker = () => {
       for (let i = 0; i < markers.length; i++) {
         markers[i].setMap(null);
@@ -201,7 +255,6 @@ const Map = () => {
     data.forEach((val) => {
       coordinates = val.geometry.coordinates;
       name = val.properties.SIG_KOR_NM;
-
       displayArea(coordinates, name);
     });
 
@@ -285,6 +338,8 @@ const Map = () => {
       // 지도 중심을 이동 시킵니다
       map.setCenter(moveLatLon);
     }
+
+    // 화면을 초기 값으로 초기화 한다.
     const $mapRerender = document.querySelector('#mapRerender');
     $mapRerender.addEventListener('mousedown', function () {
       setCenter();
@@ -293,7 +348,6 @@ const Map = () => {
           coordinates = val.geometry.coordinates;
           name = val.properties.SIG_KOR_NM;
           displayArea(coordinates, name);
-          displayArea(coordinates, name);
         });
         deleteMarker();
         lenSw = false;
@@ -301,18 +355,10 @@ const Map = () => {
     });
     $mapRerender.addEventListener('mouseup', function () {
       setCenter();
-      if (lenSw) {
-        data.forEach((val) => {
-          coordinates = val.geometry.coordinates;
-          name = val.properties.SIG_KOR_NM;
-          displayArea(coordinates, name);
-          displayArea(coordinates, name);
-        });
-        deleteMarker();
-        lenSw = false;
-      }
     });
+    // End 초기화
 
+    // 폴리곤 클릭시 해당 지역으로 줌 하며, 생성되어 있는 폴리곤 제거한다.
     const $cn_0 = document.querySelector('.CN_0');
     $cn_0.addEventListener('click', function () {
       deleteMarker();
@@ -553,7 +599,7 @@ const Map = () => {
       deletePolygon(polygons);
       createMarker('서천군');
     });
-
+    // 위 코드와 동일 동작을 원하나 동작 오류 수정 필요.
     // function cn_move(code, i) {
     //   const $code = document.querySelector(`.${code}_${i}`);
     //   $code.addEventListener('click', function () {
@@ -575,20 +621,9 @@ const Map = () => {
     // for (let i = 0; i < Object.keys(CNcity).length; i++) {
     //   cn_move('CN', i);
     // }
+    // End
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const fetchData = async () => {
-    try {
-      const request = await axios.get(process.env.REACT_APP_CHUNGNAM_API);
-      const division = dataSet(request);
-      dispatch({
-        type: CN_DATA_LOAD_REQUEST,
-        data: { CnDivision },
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <>
@@ -596,7 +631,7 @@ const Map = () => {
         <div id='kakaoMap' style={{ width: '500px', height: '496px' }}></div>
         <ButtonWrapper>
           <button id='mapRerender'>화면</button>
-          <ButtonGroup code={'CN'} division={CnDivision} />
+          <ButtonGroup code={'CN'} />
         </ButtonWrapper>
       </MapWrapper>
       <InfoWrapper id='info'></InfoWrapper>

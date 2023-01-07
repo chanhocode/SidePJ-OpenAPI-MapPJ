@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { JOIN_REQUEST } from '../reducers/data';
 
+// styled
 const Layout = styled.div`
   text-align: center;
   width: 100%;
@@ -44,31 +45,39 @@ const Wrapper = styled.div`
     cursor: pointer;
   }
 `;
+// End styled
 
+/**
+ * 기본 인적사항 작성 하여 store 및 db에 데이터 저장하는 페이지
+ * @returns
+ */
 const JoinPage = () => {
-  const { me } = useSelector((state) => state.data);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const { me } = useSelector((state) => state.data);
   const [gender, setGender] = useState('male');
   const [age, setAge] = useState('10');
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onChangeAge = useCallback((e) => {
     setAge(e.target.value);
-    console.log('e.target.value: ', e.target.value);
-    console.log(age);
   });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onChangeGender = useCallback((e) => {
     setGender(e.target.value);
-    console.log('e.target.value: ', e.target.value);
-    console.log(gender);
   });
+
+  // store에 me가 담겨있으면 메인페이지로 이동
   useEffect(() => {
     if (me) {
       navigate('/main');
     }
-  }, [me]);
+  }, [me, navigate]);
 
+  /**
+   * submit btn 클릭시 인적사항을 DB 및 store에 저장
+   */
   const onSubmitForm = useCallback(
     (e) => {
       console.log('submit data: ', gender, age);
@@ -81,7 +90,7 @@ const JoinPage = () => {
         },
       });
     },
-    [gender, age]
+    [gender, age, dispatch]
   );
   return (
     <Layout>
