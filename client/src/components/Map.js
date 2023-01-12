@@ -14,6 +14,28 @@ const MapWrapper = styled.div`
   @media (max-width: 600px) {
     width: 100%;
   }
+  .map-details-info {
+    button {
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    padding: 10px;
+    width: 350px;
+    td {
+      padding: 2px;
+    }
+  }
+  .map-info {
+    padding: 10px;
+    width: 350px;
+    button {
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    td {
+      padding: 2px;
+    }
+  }
 `;
 const ButtonWrapper = styled.div`
   #group {
@@ -162,6 +184,142 @@ const Map = () => {
     let info = []; // 생성된 infoWindow를 담는다.
 
     /**
+     * 문자열 괄호 문자 제거 함수
+     * @param {*} s
+     * @returns
+     */
+    function removeParentheses(s) {
+      let item;
+      let stack = [];
+      for (let x of s) {
+        if (x === ')') {
+          //여는괄호(자신의 짝)까지 pop
+          while (stack.pop() !== '('); //'('까지 pop하고 거짓이 됨-> 반복문 중단
+        } else stack.push(x); //닫는 괄호가 아닐 때는 push
+      }
+      //console.log(stack); //배열의 형태로 들어가있음 ['a', 'b', 'c']
+      item = stack.join(''); //string으로 합쳐줌
+      return item;
+    }
+
+    /**
+     * 기업정보 검색
+     * @param {string} company
+     * @param {string} address
+     * @returns
+     */
+    const searchCompany = async (company, address) => {
+      try {
+        console.log('search company: ', company);
+        let newCompany = company;
+        console.log('search newCompany: ', newCompany);
+        const check = company.indexOf('㈜');
+        if (check !== -1) {
+          console.log('(주) 있음.');
+          const test = newCompany.replace('㈜', '');
+          newCompany = test;
+          console.log('(주)제거: ', newCompany);
+        }
+        const search = await axios.get(
+          process.env.REACT_APP_SEARCH_API + `${newCompany}`
+        );
+        //
+        console.log('search: ', search.data.response.body.items.item);
+        const item = search.data.response.body.items.item.find((v) => {
+          const sItem = removeParentheses(v.enpBsadr.replace('충청남도 ', ''));
+          return sItem.replace(/ /g, '') === address.replace(/ /g, '');
+        });
+        return item;
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    /**
+     * 정보에 따른 콘텐츠 내용 정의
+     * @param {object} v
+     * @returns
+     */
+    const createContent = async (v) => {
+      try {
+        const searchMore = await searchCompany(v['업체명'], v['소재지']);
+        console.log('searchMore', searchMore);
+        const content = searchMore
+          ? `
+            <div class='map-details-info'>
+              <div>
+                <button id="btnClick">Interest</button>
+                <a href="https://www.google.com/search?q=${v['업체명']}" target="_blank" >
+                  <button id="btnClick">Search</button>
+                </a>
+              </div>
+              <table>
+                <tr>
+                  <td>업체명</td>
+                  <td>${v['업체명']}</td>
+                </tr>
+                <tr>
+                  <td>영문</td>
+                  <td>${searchMore['corpEnsnNm']}</td>
+                </tr>
+                <tr>
+                  <td>대표자</td>
+                  <td>${searchMore['enpRprFnm']}</td>
+                </tr>
+                <tr>
+                  <td>전화번호</td>
+                  <td>${searchMore['enpTlno']}</td>
+                </tr>
+                <tr>
+                  <td>소재지</td>
+                  <td>${v['소재지']}</td>
+                </tr>
+                <tr>
+                  <td>주생산품</td>
+                  <td>${v['주생산품']}</td>
+                </tr>
+                <tr>
+                  <td>법인등록번호</td>
+                  <td>${searchMore['crno']}</td>
+                </tr>
+                <tr>
+                  <td>기업설립일자</td>
+                  <td>${searchMore['enpEstbDt']}</td>
+                </tr>
+              </table>
+            </div>
+            `
+          : `
+              <div class="map-info">
+                <div>
+                  <button id="btnClick">Interest</button>
+                  <a href="https://www.google.com/search?q=${v['업체명']}" target="_blank" >
+                    <button id="btnClick">Search</button>
+                  </a>
+                </div>
+                <table>
+                  <tr>
+                    <td>업체명</td>
+                    <td>${v['업체명']}</td>
+                  </tr>
+                  <tr>
+                    <td>소재지</td>
+                    <td>${v['소재지']}</td>
+                  </tr>
+                  <tr>
+                    <td>주생산품</td>
+                    <td>${v['주생산품']}</td>
+                  </tr>
+                </table>
+              </div>
+              `;
+        return content;
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    /**
      * 클릭한 폴리곤에 해당하는 지역의 기업을 마커로 표시한다.
      * @param {*} city
      */
@@ -204,26 +362,9 @@ const Map = () => {
             });
             markers.push(marker);
             map.setCenter(coords);
-            var iwContent = `
-            <div style="width:100%;padding: 5px;">
-              <div style="display: flex;">
-                <div>업체명: ${v['업체명']}</div>
-                <button id="btnClick">관심</button>
-              </div>
-              주소: ${v['소재지']} </br>
-              주생산품: ${v['주생산품']}
-            </div>`,
-              iwRemoveable = true;
-
-            // 인포윈도우를 생성합니다
-            var infowindow = new kakao.maps.InfoWindow({
-              content: iwContent,
-              removable: iwRemoveable,
-            });
-            info.push(infowindow);
 
             // 마커에 클릭이벤트를 등록합니다
-            kakao.maps.event.addListener(marker, 'click', function () {
+            kakao.maps.event.addListener(marker, 'click', async () => {
               if (info) {
                 console.log('info: ', info);
                 for (let i = 0; i < info.length; i++) {
@@ -231,10 +372,24 @@ const Map = () => {
                 }
               }
               // 마커 위에 인포윈도우를 표시합니다
-              infowindow.open(map, marker);
-              const infoBtn = document.querySelector('#btnClick');
-              // console.log(infoBtn);
-              infoBtn.onclick = onSaveLike;
+              try {
+                const data = await createContent(v);
+                var iwContent = data,
+                  iwRemoveable = true;
+
+                // 인포윈도우를 생성합니다
+                var infowindow = new kakao.maps.InfoWindow({
+                  content: iwContent,
+                  removable: iwRemoveable,
+                });
+                info.push(infowindow);
+                infowindow.open(map, marker);
+                const infoBtn = document.querySelector('#btnClick');
+                // console.log(infoBtn);
+                infoBtn.onclick = onSaveLike;
+              } catch (err) {
+                console.log(err);
+              }
             });
           }
         });

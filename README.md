@@ -145,3 +145,19 @@
 1. 인적사항을 체크 하지 않고 url을 통해 main페이지 접근 시 인적사항 체크 페이지로 이동 하여 접근 할 수 없음
 2. 새로고침시 첫 화면으로 이동 및 인적사항 초기화
 ```
+
+<br>
+
+<div align=center>
+
+![Jan-12-2023 15-32-39](https://user-images.githubusercontent.com/105937460/211994842-708245e0-6966-4ab6-af53-fe464b4c279b.gif)
+
+</div>
+
+```
+1. 공공데이터포털 '금융위원회_기업기본정보 API'를 이용해 추출한 기업의 부가 정보를 탐색한다.
+2. 부가 정보가 있으면 부가 정보를 포함한 화면을 제공
+```
+
+<img src='./readme/content1.png'>
+<img src='./readme/content2.png'>
