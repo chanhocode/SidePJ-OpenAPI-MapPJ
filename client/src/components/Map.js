@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { CNcity } from '../api/chungnam';
+import { CNcity, CnLocation } from '../api/chungnam';
 import geojson from '../api/TL_SCCO_SIG.json';
+import EupMyeonDong from '../api/HJD.json';
+
 import ButtonGroup from './ButtonGroup';
 import { CN_DATA_LOAD_REQUEST, SAVE_DATA_REQUEST } from '../reducers/data';
 
@@ -47,6 +49,61 @@ const ButtonWrapper = styled.div`
     height: 31px;
     @media (max-width: 600px) {
     }
+  }
+`;
+const PointInfoWrapper = styled.div`
+  width: 100%;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #e2e2e2;
+  border-bottom: 2px solid #000;
+
+  button {
+    display: block;
+    position: relative;
+    float: left;
+    width: 120px;
+    height: 40px;
+    padding: 0;
+    margin-left: 10px;
+    font-weight: 600;
+    text-align: center;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  #startPoint.btnFade {
+    background: #00ae68;
+  }
+  #startPoint.btnFade:hover {
+    background: #21825b;
+  }
+  #startPoint.selection {
+    background: #5dc8cd;
+  }
+  #startPoint.selection:hover {
+    background: #01939a;
+  }
+
+  #removePoint {
+    background: #a74982;
+  }
+  #removePoint.btnFade:hover {
+    background: #6d184b;
+  }
+  #lineDistance {
+    background-color: #fff;
+    width: 52%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    margin-right: 10px;
   }
 `;
 const InfoWrapper = styled.div``;
@@ -118,11 +175,17 @@ const Map = () => {
 
   // 카카오맵 셋팅
   useEffect(() => {
+    // 시군구
     let data = geojson.features; // 해당 구역 이름, 좌표 등
     let coordinates = []; // 좌표 저장
     let name = ''; // 행정구 이름
 
     let polygons = [];
+
+    // 읍면동
+    let EmdData = EupMyeonDong.features; // 해당 구역 이름, 좌표 등
+    let EmdCoordinates = []; // 좌표 저장
+    let EmdName = ''; // 읍면동 이름
 
     /**
      * 초기값 false (화면 버튼을 눌러도 동작하지 않게 설정)
@@ -130,6 +193,8 @@ const Map = () => {
      * 화면 버튼 클릭시 false로 스위치
      */
     let lenSw = false;
+
+    // 선
 
     const container = document.getElementById('kakaoMap');
     const options = {
@@ -247,7 +312,7 @@ const Map = () => {
         const content = searchMore
           ? `
             <div class='map-details-info'>
-              <div>
+              <div id="infoBtnGroup">
                 <button id="btnClick">Interest</button>
                 <a href="https://www.google.com/search?q=${v['업체명']}" target="_blank" >
                   <button id="btnClick">Search</button>
@@ -291,7 +356,7 @@ const Map = () => {
             `
           : `
               <div class="map-info">
-                <div>
+                <div id="infoBtnGroup">
                   <button id="btnClick">Interest</button>
                   <a href="https://www.google.com/search?q=${v['업체명']}" target="_blank" >
                     <button id="btnClick">Search</button>
@@ -323,6 +388,7 @@ const Map = () => {
      * 클릭한 폴리곤에 해당하는 지역의 기업을 마커로 표시한다.
      * @param {*} city
      */
+
     const createMarker = (city) => {
       CnDivision[CNcity[city]].map((v) => {
         var geocoder = new kakao.maps.services.Geocoder();
@@ -364,7 +430,7 @@ const Map = () => {
             map.setCenter(coords);
 
             // 마커에 클릭이벤트를 등록합니다
-            kakao.maps.event.addListener(marker, 'click', async () => {
+            kakao.maps.event.addListener(marker, 'click', async (event) => {
               if (info) {
                 console.log('info: ', info);
                 for (let i = 0; i < info.length; i++) {
@@ -385,8 +451,43 @@ const Map = () => {
                 info.push(infowindow);
                 infowindow.open(map, marker);
                 const infoBtn = document.querySelector('#btnClick');
-                // console.log(infoBtn);
                 infoBtn.onclick = onSaveLike;
+
+                // 목적지 지정 버튼 생성
+                const $infoBtnGroup = document.querySelector('#infoBtnGroup');
+                const endPointBtn = document.createElement('button');
+                endPointBtn.innerHTML = 'endPoint';
+                function onClickDistance() {
+                  const endPointData = coords;
+
+                  let polyline = new kakao.maps.Polyline({
+                    path: [
+                      new kakao.maps.LatLng(
+                        startPointData['La'],
+                        startPointData['Ma']
+                      ),
+                      new kakao.maps.LatLng(
+                        endPointData['La'],
+                        endPointData['Ma']
+                      ),
+                    ],
+                    strokeWeight: 2,
+                    strokeColor: '#FF00FF',
+                    strokeOpacity: 0.8,
+                    strokeStyle: 'solid',
+                  });
+
+                  polyline.setMap(map);
+
+                  console.log('길이: ' + Math.round(polyline.getLength()));
+                  const $lineDistance = document.querySelector('#lineDistance');
+                  $lineDistance.textContent = `출발지점 -> 목적지(${
+                    v['업체명']
+                  }): ${Math.round(polyline.getLength())}M`;
+                }
+
+                endPointBtn.onclick = onClickDistance;
+                $infoBtnGroup.append(endPointBtn);
               } catch (err) {
                 console.log(err);
               }
@@ -413,7 +514,7 @@ const Map = () => {
       displayArea(coordinates, name);
     });
 
-    function displayArea(coordinates, name) {
+    function displayArea(coordinates, name, type) {
       let path = [];
       let points = [];
 
@@ -426,55 +527,96 @@ const Map = () => {
       });
 
       // 구역 경계 생성
-      let polygon = new kakao.maps.Polygon({
-        map: map,
-        path: path, // 그려질 다각형의 좌표 배열입니다
-        strokeWeight: 2, // 선의 두께입니다
-        strokeColor: '#004c80', // 선의 색깔입니다
-        strokeOpacity: 0.8, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
-        strokeStyle: 'solid', // 선의 스타일입니다
-        fillColor: '#fff', // 채우기 색깔입니다
-        fillOpacity: 0.4, // 채우기 불투명도 입니다
-      });
+      let polygon;
+      if (!type) {
+        polygon = new kakao.maps.Polygon({
+          map: map,
+          path: path, // 그려질 다각형의 좌표 배열입니다
+          strokeWeight: 2, // 선의 두께입니다
+          strokeColor: '#004c80', // 선의 색깔입니다
+          strokeOpacity: 0.8, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+          strokeStyle: 'solid', // 선의 스타일입니다
+          fillColor: '#fff', // 채우기 색깔입니다
+          fillOpacity: 0.4, // 채우기 불투명도 입니다
+        });
+      } else {
+        polygon = new kakao.maps.Polygon({
+          map: map,
+          path: path, // 그려질 다각형의 좌표 배열입니다
+          strokeWeight: 2, // 선의 두께입니다
+          strokeColor: '#004c80', // 선의 색깔입니다
+          strokeOpacity: 0.8, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+          strokeStyle: 'solid', // 선의 스타일입니다
+          fillColor: '#fff', // 채우기 색깔입니다
+          fillOpacity: 0.1, // 채우기 불투명도 입니다
+        });
+      }
 
       polygons.push(polygon);
 
-      // 다각형에 mouseover 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 변경합니다
-      // 지역명을 표시하는 커스텀오버레이를 지도위에 표시합니다
-      kakao.maps.event.addListener(polygon, 'mouseover', function (mouseEvent) {
-        polygon.setOptions({ fillColor: '#09f' });
+      if (!type) {
+        // 다각형에 mouseover 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 변경합니다
+        // 지역명을 표시하는 커스텀오버레이를 지도위에 표시합니다
+        kakao.maps.event.addListener(
+          polygon,
+          'mouseover',
+          function (mouseEvent) {
+            polygon.setOptions({ fillColor: '#09f' });
+            draggable = false;
+            map.setDraggable(draggable);
+          }
+        );
 
-        draggable = false;
-        map.setDraggable(draggable);
-      });
+        // 다각형에 mousemove 이벤트를 등록하고 이벤트가 발생하면 커스텀 오버레이의 위치를 변경합니다
+        kakao.maps.event.addListener(
+          polygon,
+          'mousemove',
+          function (mouseEvent) {
+            customOverlay.setPosition(mouseEvent.latLng);
+          }
+        );
 
-      // 다각형에 mousemove 이벤트를 등록하고 이벤트가 발생하면 커스텀 오버레이의 위치를 변경합니다
-      kakao.maps.event.addListener(polygon, 'mousemove', function (mouseEvent) {
-        customOverlay.setPosition(mouseEvent.latLng);
-      });
+        // 다각형에 mouseout 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 원래색으로 변경합니다
+        // 커스텀 오버레이를 지도에서 제거합니다
+        kakao.maps.event.addListener(polygon, 'mouseout', function () {
+          draggable = true;
+          map.setDraggable(draggable);
 
-      // 다각형에 mouseout 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 원래색으로 변경합니다
-      // 커스텀 오버레이를 지도에서 제거합니다
-      kakao.maps.event.addListener(polygon, 'mouseout', function () {
-        draggable = true;
-        map.setDraggable(draggable);
-
-        polygon.setOptions({ fillColor: '#fff' });
-        customOverlay.setMap(null);
-      });
-
+          polygon.setOptions({ fillColor: '#fff' });
+          customOverlay.setMap(null);
+        });
+      }
       kakao.maps.event.addListener(polygon, 'click', function (mouseEvent) {
         draggable = true;
         map.setDraggable(draggable);
-
-        var level = 10;
+        if (type) {
+          console.log('test');
+          let level = 8;
+          map.setLevel(level, {
+            anchor: centroid(points),
+            animate: {
+              duration: 50, //확대 애니메이션 시간
+            },
+          });
+          return;
+        }
+        let level = 10;
         map.setLevel(level, {
           anchor: centroid(points),
           animate: {
             duration: 50, //확대 애니메이션 시간
           },
         });
+
+        // 기존 폴리곤을 지우고 읍면동 폴리곤 생성
         deletePolygon(polygons);
+        EmdData.forEach((val) => {
+          if (val.properties.sggnm === name) {
+            EmdCoordinates = val.geometry.coordinates;
+            EmdName = val.properties.sggnm;
+            displayArea(EmdCoordinates, EmdName, 'type');
+          }
+        });
         createMarker(name);
       });
     }
@@ -498,6 +640,7 @@ const Map = () => {
     const $mapRerender = document.querySelector('#mapRerender');
     $mapRerender.addEventListener('mousedown', function () {
       setCenter();
+      deletePolygon(polygons);
       if (lenSw) {
         data.forEach((val) => {
           coordinates = val.geometry.coordinates;
@@ -528,6 +671,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '아산시') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('아산시');
     });
     const $cn_1 = document.querySelector('.CN_1');
@@ -544,6 +694,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '천안시') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('천안시');
     });
     const $cn_2 = document.querySelector('.CN_2');
@@ -560,6 +717,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '예산군') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('예산군');
     });
     const $cn_3 = document.querySelector('.CN_3');
@@ -576,6 +740,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '공주시') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('공주시');
     });
     const $cn_4 = document.querySelector('.CN_4');
@@ -592,6 +763,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '계룡시') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('계룡시');
     });
     const $cn_5 = document.querySelector('.CN_5');
@@ -608,6 +786,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '금산군') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('금산군');
     });
     const $cn_6 = document.querySelector('.CN_6');
@@ -624,6 +809,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '논산시') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('논산시');
     });
     const $cn_7 = document.querySelector('.CN_7');
@@ -640,6 +832,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '부여군') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('부여군');
     });
     const $cn_8 = document.querySelector('.CN_8');
@@ -656,6 +855,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '당진시') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('당진시');
     });
     const $cn_9 = document.querySelector('.CN_9');
@@ -672,6 +878,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '서산시') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('서산시');
     });
     const $cn_10 = document.querySelector('.CN_10');
@@ -688,6 +901,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '태안군') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('태안군');
     });
     const $cn_11 = document.querySelector('.CN_11');
@@ -704,6 +924,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '홍성군') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('홍성군');
     });
     const $cn_12 = document.querySelector('.CN_12');
@@ -720,6 +947,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '청양군') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('청양군');
     });
     const $cn_13 = document.querySelector('.CN_13');
@@ -736,6 +970,13 @@ const Map = () => {
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '보령시') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('보령시');
     });
     const $cn_14 = document.querySelector('.CN_14');
@@ -746,15 +987,24 @@ const Map = () => {
 
       var level = 10;
       map.setLevel(level, {
-        anchor: new kakao.maps.LatLng(36.108670128072674, 126.70587754426815),
+        // anchor: new kakao.maps.LatLng(36.108670128072674, 126.70587754426815),
+        anchor: new kakao.maps.LatLng(CnLocation['서천군']),
         animate: {
           duration: 50, //확대 애니메이션 시간
         },
       });
       deletePolygon(polygons);
+      EmdData.forEach((val) => {
+        if (val.properties.sggnm === '서천군') {
+          EmdCoordinates = val.geometry.coordinates;
+          EmdName = val.properties.sggnm;
+          displayArea(EmdCoordinates, EmdName, 'type');
+        }
+      });
       createMarker('서천군');
     });
     // 위 코드와 동일 동작을 원하나 동작 오류 수정 필요.
+    // let count = 0;
     // function cn_move(code, i) {
     //   const $code = document.querySelector(`.${code}_${i}`);
     //   $code.addEventListener('click', function () {
@@ -764,24 +1014,98 @@ const Map = () => {
 
     //     var level = 10;
     //     map.setLevel(level, {
-    //       anchor: new kakao.maps.LatLng(CnLocation[city[i]]),
+    //       anchor: new kakao.maps.LatLng(CnLocation[Object.keys(CNcity)[i]]),
     //       animate: {
     //         duration: 50, //확대 애니메이션 시간
     //       },
     //     });
+    //     let test = Object.keys(CNcity);
+
+    //     console.log('atb', test[i]);
+
     //     deletePolygon(polygons);
-    //     createMarker(city[i]);
+    //     createMarker(Object.keys(CNcity)[i]);
     //   });
     // }
-    // for (let i = 0; i < Object.keys(CNcity).length; i++) {
-    //   cn_move('CN', i);
+
+    // if (count < 15) {
+    //   for (let i = 0; i < Object.keys(CNcity).length; i++) {
+    //     console.log('for: ', i);
+    //     cn_move('CN', i);
+    //     count++;
+    //   }
     // }
     // End
+
+    // 선 생성 및 거리 측정
+
+    // 출발지점 생성
+    // 출발지점 마커 이미지 정의
+    var imageSrc = './img/SPmarker.png', // 마커이미지의 주소입니다
+      imageSize = new kakao.maps.Size(22, 36), // 마커이미지의 크기입니다
+      imageOption = { offset: new kakao.maps.Point(10, 39) };
+    var markerImage = new kakao.maps.MarkerImage(
+      imageSrc,
+      imageSize,
+      imageOption
+    );
+    // 마커 정의
+    let SPmarker = new kakao.maps.Marker({ map: map, image: markerImage });
+
+    const $startPoint = document.querySelector('#startPoint');
+    const $removePoint = document.querySelector('#removePoint');
+
+    let spFlag = false;
+    let startPointData = '';
+    $startPoint.addEventListener('click', onChangeSpFlag);
+    $removePoint.addEventListener('click', onRemovePoint);
+
+    function onChangeSpFlag() {
+      spFlag = !spFlag;
+      console.log(spFlag);
+      if (spFlag === true) {
+        $startPoint.textContent = '출발지점 확정';
+        $startPoint.classList.replace('btnFade', 'selection');
+      } else {
+        $startPoint.textContent = '출발지점 재지정';
+        $startPoint.classList.replace('selection', 'btnFade');
+      }
+    }
+    function onRemovePoint() {
+      console.log('remove Point');
+      SPmarker.setMap(null);
+    }
+
+    kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
+      console.log('event: ', spFlag);
+      if (spFlag) {
+        console.log('SpSet');
+
+        // 클릭한 위도, 경도 정보를 가져옵니다
+        let latlng = mouseEvent.latLng;
+        startPointData = latlng;
+
+        // // 마커 위치를 클릭한 위치로 옮깁니다
+        SPmarker.setPosition(latlng);
+        SPmarker.setMap(map);
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
+      <PointInfoWrapper>
+        <div>
+          <button id='startPoint' className='btnFade'>
+            출발지점 지정
+          </button>
+          <button id='removePoint' className='btnFade'>
+            출발지점 삭제
+          </button>
+        </div>
+        <div id='lineDistance'></div>
+      </PointInfoWrapper>
       <MapWrapper>
         <div id='kakaoMap' style={{ width: '500px', height: '496px' }}></div>
         <ButtonWrapper>

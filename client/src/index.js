@@ -30,7 +30,6 @@ const App = styled.div`
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
     <BrowserRouter>
       <Provider store={store()}>
         <Background>
@@ -44,5 +43,4 @@ root.render(
         </Background>
       </Provider>
     </BrowserRouter>
-  </React.StrictMode>
 );
