@@ -159,5 +159,25 @@
 2. 부가 정보가 있으면 부가 정보를 포함한 화면을 제공
 ```
 
+<div align=center>
+
 <img src='./readme/content1.png'>
 <img src='./readme/content2.png'>
+
+</div>
+
+- Update: 목적지 거리 측정 기능 및 부가 정보 추가
+
+```
+1. 상세정보_ 사업자등록번호 항목 추가
+2. 출발지점 마커 생성 기능 추가
+3. 목적지 지정 클릭시 출발지 - 목적지 라인 생성 및 직선 거리 표시
+```
+
+<div align=center>
+
+<img src='./readme/point1.png'>
+<img src='./readme/point2.png'>
+<img src='./readme/point3.png'>
+
+</div>

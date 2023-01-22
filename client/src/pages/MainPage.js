@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import CompanyCount from '../components/CompanyCount';
-import Map from '../components/Map';
+import Map from '../components/Map/Map';
 
 const MainPage = () => {
   const navigate = useNavigate();
