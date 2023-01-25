@@ -5,8 +5,9 @@ import { CnEng } from '../api/chungnam';
 
 // styled
 const CompanyWrapper = styled.div`
-  background-color: #d7e9b9;
-  width: 90%;
+box-shadow: 0px 0px 12px 1px #555555;
+  background-color: #A0C3D2;
+  width: 100%;
   margin-top: 13px;
   margin-left: auto;
   margin-right: auto;

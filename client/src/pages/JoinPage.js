@@ -8,41 +8,76 @@ import { JOIN_REQUEST } from '../reducers/data';
 const Layout = styled.div`
   text-align: center;
   width: 100%;
-  height: 80%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url(/background.png);
-  background-size: cover;
   overflow: hidden;
+
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
 `;
 const Wrapper = styled.div`
+  width: 50%;
   margin-top: 40px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
+
+  h1 {
+    color: #fff;
+    font-weight: 800;
+    margin-top: 50px;
+  }
+  p {
+    color: #205295;
+    margin-bottom: 50px;
+  }
+  @media screen and (max-width: 767px) {
+    width: 90%;
+  }
+
   form {
     width: 80%;
     margin-left: auto;
     margin-right: auto;
-    height: 60px;
     display: flex;
+    flex-direction: column;
+
     align-items: center;
     justify-content: center;
     border-radius: 20px;
-    background-color: #fff;
   }
   select {
     border: none;
-    border-bottom: 1px #000 solid;
-    width: 70px;
+    border: 1px #000 solid;
+    width: 80%;
+    height: 40px;
+    border-radius: 10px;
     text-align: center;
-    height: 30px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+
+    @media screen and (max-width: 767px) {
+      width: 90%;
+    }
   }
   button {
-    margin-left: 20px;
     border: none;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    background-color: #00337c;
+    border-radius: 10px;
     border-bottom: 1px #000 solid;
-    width: 70px;
-    height: 30px;
+    width: 80%;
+    height: 40px;
+    margin-top: 15px;
+    margin-bottom: 5px;
     cursor: pointer;
+    @media screen and (max-width: 767px) {
+      width: 90%;
+    }
   }
 `;
 // End styled
@@ -95,7 +130,7 @@ const JoinPage = () => {
   return (
     <Layout>
       <Wrapper>
-        <h1>Hello, Enter your information and Proceed.</h1>
+        <h1>Map-D</h1>
         <form onSubmit={onSubmitForm}>
           <select type='gender' onChange={onChangeGender}>
             <option value='male'>남성</option>
@@ -112,6 +147,7 @@ const JoinPage = () => {
           </select>
           <button type='submit'>Go!</button>
         </form>
+        <p>Hello, Enter your information and Proceed.</p>
       </Wrapper>
     </Layout>
   );

@@ -10,6 +10,7 @@ import ButtonGroup from '../ButtonGroup';
 import { CN_DATA_LOAD_REQUEST, SAVE_DATA_REQUEST } from '../../reducers/data';
 import { dataSet, searchCompany } from './Function_data/dataRead';
 import {
+  MapW,
   MapWrapper,
   ButtonWrapper,
   PointInfoWrapper,
@@ -581,7 +582,7 @@ const Map = () => {
   }, []);
 
   return (
-    <>
+    <MapW>
       <PointInfoWrapper>
         <div>
           <button id='startPoint' className='btnFade'>
@@ -594,14 +595,14 @@ const Map = () => {
         <div id='lineDistance'></div>
       </PointInfoWrapper>
       <MapWrapper>
-        <div id='kakaoMap' style={{ width: '500px', height: '496px' }}></div>
+        <div id='kakaoMap'></div>
         <ButtonWrapper>
           <button id='mapRerender'>화면</button>
           <ButtonGroup code={'CN'} />
         </ButtonWrapper>
       </MapWrapper>
       <InfoWrapper id='info'></InfoWrapper>
-    </>
+    </MapW>
   );
 };
 

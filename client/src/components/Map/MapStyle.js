@@ -1,11 +1,20 @@
 import styled from 'styled-components';
 
 // styled
+export const MapW = styled.div`
+  border: #ffb100 8px solid;
+  border-radius: 10px;
+  box-shadow: 0px 0px 12px 1px #555555
+`;
 export const MapWrapper = styled.div`
-  width: 600px;
+  width: 100%;
+  background-color: #ffb100;
   display: flex;
-  @media (max-width: 600px) {
-    width: 100%;
+
+  #kakaoMap {
+    width: 90%;
+    aspect-ratio: 1/1;
+    border-bottom-left-radius: 10px;
   }
   .map-details-info {
     button {
@@ -38,8 +47,9 @@ export const ButtonWrapper = styled.div`
   button {
     width: 100px;
     height: 31px;
-    @media (max-width: 600px) {
-    }
+    border: none;
+    border-bottom: 2px #999 solid;
+    background-color: #fff;
   }
 `;
 export const PointInfoWrapper = styled.div`
@@ -48,7 +58,7 @@ export const PointInfoWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #e2e2e2;
+  background-color: #ffb100;
   border-bottom: 2px solid #000;
 
   button {
