@@ -1,16 +1,15 @@
-# Open_API_MAP_Project
+# DeepData_Prototype 1.0.1
 
 <br>
 
 ## 😊 프로젝트 소개
 
-### [ 공공데이터포털(OpenAPI) 및 카카오맵 API 활용 웹어플리케이션 ]
+### [ 공공데이터포털(OpenAPI) 및 카카오맵 API 활용한 웹어플리케이션 ]
 
 <br>
 
 <p>
-공공데이터포털의 '충청남도_유망 중소기업 현황' OpenAPI데이터 활용 및 카카오맵 API를 활용한 웹 어플리케이션으로 클릭 이벤트를 활용한 성별 및 연령별 관심 도시 및 회사의 통계를 추출을 목적으로 가진 어플리케이션
-
+공공데이터포털, 워크넷 OpenAPI데이터 활용 및 카카오맵 API를 활용한 웹 어플리케이션으로 공공데이터의 기업PAI를 통해 자신의 회사를 검색하는 기능을 제공하며, 워크넷의 강소기업에 대한 정보를 카카오맵과 제공되는 목록으로 표시 해준다.
 </p>
 
 ## 👐 기술 스택
@@ -40,144 +39,68 @@
 
 <br>
 
-- 기본 인적사항 확인 페이지
+- 기본 인적사항 및 공공데이터 OpenAPI를 활용한 기업검색 및 추가정보 입력
 
-<br>
-
-<img src='./readme/join.png'>
-
-<br>
-
-```
-
-: 기본적인 인적사항을 클릭 후[ Go ] 버튼 클릭시 DataBase에 채크 된 인적사항을 저장 한다. <br>
-
-1. 성별, 연령별 관심있는 지역과 관심있는 회사의 통계를 내기 위해 사용 한다.
-
-```
-
-<br>
-
-- mySQL 저장 데이터
-
-<img src='./readme/db1.png'>
-
-<br>
-
-- 메인 페이지
-
-<br>
-
-<img src='./readme/main.png'>
-
-<br>
-
-```
-공공데이터포털의 openAPI에 대한 'json' 데이터를 불러온 후 도시별로 구분하여 분류하고 카카오맵 API 에 정보를 넘겨 마커를 생성
-```
-
-<br>
-
-- 메인 페이지 동작 1
+: 기본적인 인적사항을 클릭 후[ Go ] 버튼 클릭 하거나 추가정보를 입력 후 버튼을 클릭시 DataBase에 입력한 인적사항을 저장 한다.
 
 <br>
 
 <div align=center>
 
-![Jan-06-2023 15-23-101](https://user-images.githubusercontent.com/105937460/210948325-0d5c3f35-bf83-42d1-974f-f2b5dbab40e0.gif)
+<p>Join Page preview</p>
 
+![join](https://user-images.githubusercontent.com/123555721/221360185-f22cdaef-b1c7-4d5f-a91f-ad082840c4ea.gif)
+
+  <p>재직중인 기업을 검색하여 선택할 수 있다.</p>
+  <p>공공데이터포털의 '금융위원회_기업기본정보' API를 활용하였다.</p>
+  <img src='./readme/join0.png' />
+
+  <p>자신의 회사가 검색결과가 없는 경우 직접 입력하는 공간을 제공한다.</p>
+  <img src='./readme/join1.png' />
 </div>
 
-<br>
-
-```
-1. 충청남도 좌표를 이용하여 카카오맵에 폴리곤 영역을 생성
-2. 폴리곤을 클릭시 해당 지역의 강소기업을 마커로 표시
-3. 우측 버튼을 클릭시 해당 지역의 강소기업을 표시하도록 하며, 화면 버튼 클릭시 초기화 한다.
-4. 지역을 이동시 기존 마커를 제거 하고 현 위치에 대한 마커를 새로 생성한다.
-```
+---
 
 <br>
 
-- 메인 페이지 동작 2
-
-<br>
+- 카카오맵API 및 워크넷 기업정보API를 활용하여 정보 제공
 
 <div align=center>
 
-![Jan-06-2023 15-23-478](https://user-images.githubusercontent.com/105937460/210948433-d28ba2be-4ff6-492a-bcc0-2e4fa248a29d.gif)
+<p>main Page Preview</p>
 
-</div>
+![Feb-25-2023 22-23-51](https://user-images.githubusercontent.com/123555721/221360211-a9647473-1488-46ea-a7f4-7acb12706ded.gif)
 
-<br>
+<p>도 - 시군구 - 읍면동 단위 폴리곤</p>
 
-```
-1. 마커를 클릭시 infowindow 를 생성하여 기업의 기본 정보를 표시
-2. 다른 마커를 클릭시 기존 infoWindow를 제거후 선택 마커의 infoWindow를 표시
-3. 특정 회사 클릭 후 [관심] 버튼 클릭시 DataBase에 해당 기업 정보 저장 및 유저와의 연관관계 생성
-```
+![Feb-25-2023 22-26-54](https://user-images.githubusercontent.com/123555721/221360199-66b26dfd-54e6-4582-a741-c48bc2e10278.gif)
 
-<br>
+<p>'도'를 클릭시 '시'별 내에 있는 강소기업의 수를 표시해준다.</p>
 
-- mySQL 저장 데이터
+<img src='./readme/cluster.png' />
 
-<br>
+<p>'시'를 클릭시 강소기업의 정보를 담고있는 마커를 제공한다.</p>
 
-<img src='./readme/db2.png'>
+<img src='./readme/marker.png' />
 
-<img src='./readme/db2.png'>
+<p>마커를 클릭하여 기업의 정보를 확인 할 수 있으며 관심 버튼을 클릭하여 join 페이지에서 입력한 자신의 인적사항과 해당 기업을 DB에 저장할 수 있으며, 구글검색으로 이어주거나, 목적지로 선택 할 수 있다.</p>
 
-<br>
+<img src='./readme/company.png' />
 
-- 인적사항이 없을 시 동작
+<p>도, 시 단위 클릭시 해당 단위 내의 회사 기본정보 제공 및 페이지네이션 구현</p>
 
-<br>
+![Feb-25-2023 22-27-02](https://user-images.githubusercontent.com/123555721/221360193-c7464555-c880-4ada-86fa-ad0c20b5b127.gif)
 
-<div align=center>
+<p>해당 지역의 기업을 리스트로 제공 및 페이지네이션을 구현 하였다.</p>
 
-![Jan-06-2023 16-44-01](https://user-images.githubusercontent.com/105937460/210954316-0e8ff1d7-abe3-46db-8b7e-856ed876b46a.gif)
+<img src='./readme/list.png' />
 
-</div>
+<p>두 지점간 직선 거리 및 소요시간(도보, 자전거, 차) 제공</p>
 
-<br>
+![Feb-25-2023 22-30-29](https://user-images.githubusercontent.com/123555721/221360202-a6e29460-8642-4f32-9427-3b2719200816.gif)
 
-```
-1. 인적사항을 체크 하지 않고 url을 통해 main페이지 접근 시 인적사항 체크 페이지로 이동 하여 접근 할 수 없음
-2. 새로고침시 첫 화면으로 이동 및 인적사항 초기화
-```
+<p>출발지 - 목적지 간 거리및 소요시간 제공</p>
 
-<br>
-
-<div align=center>
-
-![Jan-12-2023 15-32-39](https://user-images.githubusercontent.com/105937460/211994842-708245e0-6966-4ab6-af53-fe464b4c279b.gif)
-
-</div>
-
-```
-1. 공공데이터포털 '금융위원회_기업기본정보 API'를 이용해 추출한 기업의 부가 정보를 탐색한다.
-2. 부가 정보가 있으면 부가 정보를 포함한 화면을 제공
-```
-
-<div align=center>
-
-<img src='./readme/content1.png'>
-<img src='./readme/content2.png'>
-
-</div>
-
-- Update: 목적지 거리 측정 기능 및 부가 정보 추가
-
-```
-1. 상세정보_ 사업자등록번호 항목 추가
-2. 출발지점 마커 생성 기능 추가
-3. 목적지 지정 클릭시 출발지 - 목적지 라인 생성 및 직선 거리 표시
-```
-
-<div align=center>
-
-<img src='./readme/point1.png'>
-<img src='./readme/point2.png'>
-<img src='./readme/point3.png'>
+<img src='./readme/line.png' />
 
 </div>

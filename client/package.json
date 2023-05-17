@@ -14,7 +14,7 @@
     "react-kakao-maps-sdk": "^1.1.5",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.6.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "redux": "^4.2.0",
     "redux-devtools-extension": "^2.13.9",
     "redux-saga": "^1.2.2",
@@ -22,7 +22,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "export PORT=3037 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

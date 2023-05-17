@@ -1,7 +1,7 @@
 {
-  "name": "open_api_map",
-  "version": "1.0.0",
-  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "name": "deepdata_prototype",
+  "version": "1.0.1",
+  "description": "Web application using open API",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
